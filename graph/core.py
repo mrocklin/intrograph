@@ -23,6 +23,5 @@ def run(dag, results, **inputs):
         for inp in fninputs(fn):
             if inp not in knowns:
                 knowns[inp] = compute(inp)
-        knowns[var] = fn(*[knowns[inp] for inp in fninputs(fn)])
-        return knowns[var]
+        return fn(*[knowns[inp] for inp in fninputs(fn)])
     return tuple(map(compute, results))
