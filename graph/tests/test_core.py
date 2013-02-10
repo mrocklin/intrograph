@@ -30,3 +30,14 @@ def test_stats():
            'v': lambda m, m2: m2 - m**2}
 
     assert run(dag, ('m', 'm2', 'v'), xs=[1, 2, 3, 6]) == (3, 12, 3)
+
+def test_compile():
+    dag = {'a': lambda x, y: x + y,
+           'm': lambda x, y: x * y,
+           'result': lambda a, m: max(a, m),
+           'not_run': lambda m, x, result: 1/0}
+    ins = ('x', 'y')
+    outs = ('m', 'result')
+
+    fn = compile(dag, ins, outs)
+    assert fn(1, 2) == (2, 3)

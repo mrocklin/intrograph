@@ -25,3 +25,16 @@ def run(dag, results, **inputs):
             knowns.update(dict(zip(unknowns, map(compute, unknowns))))
             return fn(*[knowns[inp] for inp in fninputs(fn)])
     return tuple(map(compute, results))
+
+def compile(dag, inputs, outputs):
+    """ Build a callable function from a DAG
+
+    >>> dag = {'a': lambda x, y: x + y,
+    ...        'm': lambda x, y: x * y,
+    ...        'z': lambda a, m: max(a, m)}
+
+    >>> fn = compile(dag, ('x', 'y'), ('m', 'z'))
+    >>> fn(1, 2)
+    (2, 3)
+    """
+    return lambda *args: run(dag, outputs, **dict(zip(inputs, args)))
