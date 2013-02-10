@@ -20,3 +20,11 @@ def test_run():
 
     assert run(dag, ins, ('result',)) == (3,)
     assert run(dag, ins, ('a', 'm', 'result')) == (3, 2, 3)
+
+def test_stats():
+    dag = {'n': lambda xs: len(xs),
+           'm': lambda xs, n: sum(xs) / n,
+           'm2': lambda xs, n: sum([x**2 for x in xs]) / n,
+           'v': lambda m, m2: m2 - m**2}
+
+    assert run(dag, {'xs': [1, 2, 3, 6]}, ('m', 'm2', 'v')) == (3, 12, 3)
