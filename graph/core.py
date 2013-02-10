@@ -4,7 +4,7 @@ def fninputs(f):
     >>> fninputs(lambda x, y: x + y)
     ('x', 'y')
     """
-    return f.func_code.co_varnames
+    return f.func_code.co_varnames[:f.func_code.co_argcount]
 
 def run(dag, inputs, results):
     """ Execute a computation

@@ -1,8 +1,13 @@
-from core import *
+from graph.core import *
 
 def test_fninputs():
     def f(x, y):
         return x + y
+    assert fninputs(f) == ('x', 'y')
+
+    def f(x, y):
+        z = x + y
+        return z
     assert fninputs(f) == ('x', 'y')
 
 def test_run():
