@@ -1,4 +1,4 @@
-from core import *
+from graph.core import *
 
 def test_fninputs():
     def f(x, y):
