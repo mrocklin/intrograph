@@ -16,10 +16,12 @@ def test_run():
            'result': lambda a, m: max(a, m),
            'not_run': lambda m, x, result: 1/0}
 
-    ins = {'x': 1,  'y': 2}
+    assert run(dag, ('result',), x=1, y=2) == (3,)
 
-    assert run(dag, ins, ('result',)) == (3,)
-    assert run(dag, ins, ('a', 'm', 'result')) == (3, 2, 3)
+    ins = {'x': 1,  'y': 2}
+    assert run(dag, ('result',), **ins) == (3,)
+
+    assert run(dag, ('a', 'm', 'result'), **ins) == (3, 2, 3)
 
 def test_stats():
     dag = {'n': lambda xs: len(xs),
@@ -27,4 +29,4 @@ def test_stats():
            'm2': lambda xs, n: sum([x**2 for x in xs]) / n,
            'v': lambda m, m2: m2 - m**2}
 
-    assert run(dag, {'xs': [1, 2, 3, 6]}, ('m', 'm2', 'v')) == (3, 12, 3)
+    assert run(dag, ('m', 'm2', 'v'), xs=[1, 2, 3, 6]) == (3, 12, 3)
