@@ -19,9 +19,9 @@ def run(dag, results, **inputs):
     def compute(var):
         if var in knowns:
             return knowns[var]
-        fn = dag[var]
-        for inp in fninputs(fn):
-            if inp not in knowns:
-                knowns[inp] = compute(inp)
-        return fn(*[knowns[inp] for inp in fninputs(fn)])
+        else:
+            fn = dag[var]
+            unknowns = filter(lambda x: x not in knowns, fninputs(fn))
+            knowns.update(dict(zip(unknowns, map(compute, unknowns))))
+            return fn(*[knowns[inp] for inp in fninputs(fn)])
     return tuple(map(compute, results))
