@@ -41,3 +41,12 @@ def test_compile():
 
     fn = compile(dag, ins, outs)
     assert fn(1, 2) == (2, 3)
+
+def test_edges():
+    assert set(edges({'a': lambda b: b + 1})) == set([('b', 'a')])
+    dag = {'n': lambda xs: len(xs),
+           'm': lambda xs, n: sum(xs) / n,
+           'm2': lambda xs, n: sum([x**2 for x in xs]) / n,
+           'v': lambda m, m2: m2 - m**2}
+    assert set(edges(dag)) == set([('xs', 'n'), ('xs', 'm'), ('n', 'm'),
+        ('xs', 'm2'), ('n', 'm2'), ('m', 'v'), ('m2', 'v')])

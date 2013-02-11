@@ -38,3 +38,14 @@ def compile(dag, inputs, outputs):
     (2, 3)
     """
     return lambda *args: run(dag, outputs, **dict(zip(inputs, args)))
+
+def edges(dag):
+    """ Variable dependencies within a dag
+
+    returns set of (a, b) where b depends on a
+    >>> dag = {'b': lambda a: a + 1,
+    ...        'c': lambda a, b: a + b + 1}
+    >>> edges(dag)
+    {(a, b), (c, a), (c, b)}
+    """
+    return set((inp, out) for (out, fn) in dag.items() for inp in fninputs(fn))
