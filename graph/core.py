@@ -15,6 +15,7 @@ def run(dag, results, **inputs):
     >>> run(dag, ('m', 'z'), x=1, y=2})
     (2, 3)
     """
+    getfn = inputs.get('getfn', lambda dag, var: dag[var])
     knowns = inputs.copy()
     def compute(var):
         if var in knowns:
@@ -23,10 +24,10 @@ def run(dag, results, **inputs):
             fn = dag[var]
             unknowns = filter(lambda x: x not in knowns, fninputs(fn))
             knowns.update(dict(zip(unknowns, map(compute, unknowns))))
-            return fn(*[knowns[inp] for inp in fninputs(fn)])
+            return getfn(dag, var)(*[knowns[inp] for inp in fninputs(fn)])
     return tuple(map(compute, results))
 
-def compile(dag, inputs, outputs):
+def compile(dag, inputs, outputs, getfn=lambda dag, var: dag[var]):
     """ Build a callable function from a DAG
 
     >>> dag = {'a': lambda x, y: x + y,
@@ -37,7 +38,8 @@ def compile(dag, inputs, outputs):
     >>> fn(1, 2)
     (2, 3)
     """
-    return lambda *args: run(dag, outputs, **dict(zip(inputs, args)))
+    return lambda *args: run(dag, outputs, getfn=getfn,
+                             **dict(zip(inputs, args)))
 
 def edges(dag):
     """ Variable dependencies within a dag
