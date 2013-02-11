@@ -83,3 +83,14 @@ def test_transform():
     run(dag, ('v',), xs=[1,2,3], transforms=[profile])
     assert set(times.keys()) == set(['n', 'm', 'm2', 'v'])
     assert all(isinstance(v, float) for v in times.values())
+
+    times.clear()
+    while order:
+        del order[0]
+
+    run(dag, ('v',), xs=[1,2,3], transforms=[profile, inorder])
+
+    assert list(order)[0] == 'n'
+    assert list(order)[-1] == 'v'
+    assert set(times.keys()) == set(['n', 'm', 'm2', 'v'])
+    assert all(isinstance(v, float) for v in times.values())
