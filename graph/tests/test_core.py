@@ -58,30 +58,28 @@ def test_transform():
            'v': lambda m, m2: m2 - m**2}
 
     order = list()
-    def getfn(dag, var):
+    def inorder(fn, dag, var):
         """ Record order of computed variables """
-        rawfn = dag[var]
         def newfn(*inputs):
             order.append(var)
-            return rawfn(*inputs)
+            return fn(*inputs)
         return newfn
-    run(dag, ('v',), xs=[1,2,3], getfn=getfn)
+    run(dag, ('v',), xs=[1,2,3], transforms=[inorder])
 
     assert list(order)[0] == 'n'
     assert list(order)[-1] == 'v'
 
     times = dict()
     import time
-    def profile(dag, var):
-        rawfn = dag[var]
+    def profile(fn, dag, var):
         def newfn(*inputs):
             start = time.time()
-            output = rawfn(*inputs)
+            output = fn(*inputs)
             end = time.time()
             times[var] = end - start
             return output
         return newfn
 
-    run(dag, ('v',), xs=[1,2,3], getfn=profile)
+    run(dag, ('v',), xs=[1,2,3], transforms=[profile])
     assert set(times.keys()) == set(['n', 'm', 'm2', 'v'])
     assert all(isinstance(v, float) for v in times.values())

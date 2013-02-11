@@ -15,7 +15,7 @@ def run(dag, results, **inputs):
     >>> run(dag, ('m', 'z'), x=1, y=2})
     (2, 3)
     """
-    getfn = inputs.get('getfn', lambda dag, var: dag[var])
+    transforms = inputs.get('transforms', [])
     knowns = inputs.copy()
     def compute(var):
         if var in knowns:
@@ -24,10 +24,13 @@ def run(dag, results, **inputs):
             fn = dag[var]
             unknowns = filter(lambda x: x not in knowns, fninputs(fn))
             knowns.update(dict(zip(unknowns, map(compute, unknowns))))
-            return getfn(dag, var)(*[knowns[inp] for inp in fninputs(fn)])
+            newfn = fn
+            for transform in transforms:
+                newfn = transform(newfn, dag, var)
+            return newfn(*[knowns[inp] for inp in fninputs(fn)])
     return tuple(map(compute, results))
 
-def compile(dag, inputs, outputs, getfn=lambda dag, var: dag[var]):
+def compile(dag, inputs, outputs, transforms=[]):
     """ Build a callable function from a DAG
 
     >>> dag = {'a': lambda x, y: x + y,
@@ -38,7 +41,7 @@ def compile(dag, inputs, outputs, getfn=lambda dag, var: dag[var]):
     >>> fn(1, 2)
     (2, 3)
     """
-    return lambda *args: run(dag, outputs, getfn=getfn,
+    return lambda *args: run(dag, outputs, transforms=transforms,
                              **dict(zip(inputs, args)))
 
 def edges(dag):
