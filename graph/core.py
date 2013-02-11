@@ -49,10 +49,3 @@ def edges(dag):
     {(a, b), (a, c), (b, c)}
     """
     return set((inp, out) for (out, fn) in dag.items() for inp in fninputs(fn))
-
-def dotgraph(dag):
-    import pydot
-    return pydot.graph_from_edges(edges(dag), directed=True)
-
-def pdf(dag, filename):
-    dotgraph(dag).write_pdf(filename)
