@@ -50,3 +50,47 @@ def test_edges():
            'v': lambda m, m2: m2 - m**2}
     assert set(edges(dag)) == set([('xs', 'n'), ('xs', 'm'), ('n', 'm'),
         ('xs', 'm2'), ('n', 'm2'), ('m', 'v'), ('m2', 'v')])
+
+def test_transform():
+    dag = {'n': lambda xs: len(xs),
+           'm': lambda xs, n: sum(xs) / n,
+           'm2': lambda xs, n: sum([x**2 for x in xs]) / n,
+           'v': lambda m, m2: m2 - m**2}
+
+    order = list()
+    def inorder(fn, dag, var):
+        """ Record order of computed variables """
+        def newfn(*inputs):
+            order.append(var)
+            return fn(*inputs)
+        return newfn
+    run(dag, ('v',), xs=[1,2,3], transforms=[inorder])
+
+    assert list(order)[0] == 'n'
+    assert list(order)[-1] == 'v'
+
+    times = dict()
+    import time
+    def profile(fn, dag, var):
+        def newfn(*inputs):
+            start = time.time()
+            output = fn(*inputs)
+            end = time.time()
+            times[var] = end - start
+            return output
+        return newfn
+
+    run(dag, ('v',), xs=[1,2,3], transforms=[profile])
+    assert set(times.keys()) == set(['n', 'm', 'm2', 'v'])
+    assert all(isinstance(v, float) for v in times.values())
+
+    times.clear()
+    while order:
+        del order[0]
+
+    run(dag, ('v',), xs=[1,2,3], transforms=[profile, inorder])
+
+    assert list(order)[0] == 'n'
+    assert list(order)[-1] == 'v'
+    assert set(times.keys()) == set(['n', 'm', 'm2', 'v'])
+    assert all(isinstance(v, float) for v in times.values())
