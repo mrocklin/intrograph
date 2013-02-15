@@ -22,12 +22,12 @@ def run(dag, results, **inputs):
             return knowns[var]
         else:
             fn = dag[var]
-            unknowns = filter(lambda x: x not in knowns, fninputs(fn))
+            inputs = fninputs(fn)
+            unknowns = filter(lambda x: x not in knowns, inputs)
             knowns.update(dict(zip(unknowns, map(compute, unknowns))))
-            newfn = fn
             for transform in transforms:
-                newfn = transform(newfn, dag, var)
-            return newfn(*[knowns[inp] for inp in fninputs(fn)])
+                fn = transform(fn, dag, var)
+            return fn(*map(knowns.get, inputs))
     return tuple(map(compute, results))
 
 def compile(dag, inputs, outputs, transforms=[]):
