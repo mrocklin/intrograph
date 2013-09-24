@@ -12,7 +12,7 @@ def run(dag, results, **inputs):
     >>> dag = {'a': lambda x, y: x + y,
     ...        'm': lambda x, y: x * y,
     ...        'z': lambda a, m: max(a, m)}
-    >>> run(dag, ('m', 'z'), x=1, y=2})
+    >>> run(dag, ('m', 'z'), x=1, y=2)
     (2, 3)
     """
     transforms = inputs.get('transforms', [])
@@ -50,7 +50,7 @@ def edges(dag):
     returns set of (a, b) where b depends on a
     >>> dag = {'b': lambda a: a + 1,
     ...        'c': lambda a, b: a + b + 1}
-    >>> edges(dag)
-    {(a, b), (a, c), (b, c)}
+    >>> edges(dag) # doctest: +SKIP
+    set([('a', 'b'), ('a', 'c'), ('b', 'c')])
     """
     return set((inp, out) for (out, fn) in dag.items() for inp in fninputs(fn))
