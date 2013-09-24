@@ -1,4 +1,4 @@
-from graph.core import edges
+from intrograph.core import edges
 import pydot
 
 def dotgraph(dag):
